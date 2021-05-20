@@ -108,14 +108,14 @@ CODE_SAMPLE
 
         foreach ($node->getProperties() as $property) {
             $propertyPhpDocInfo = $this->phpDocInfoFactory->createFromNode($property);
-            if ($propertyPhpDocInfo === null) {
+            if (! $propertyPhpDocInfo instanceof PhpDocInfo) {
                 continue;
             }
 
             $requiredDoctrineAnnotationTagValueNode = $propertyPhpDocInfo->getByAnnotationClass(
                 'Doctrine\Common\Annotations\Annotation\Required'
             );
-            if ($requiredDoctrineAnnotationTagValueNode === null) {
+            if (! $requiredDoctrineAnnotationTagValueNode instanceof DoctrineAnnotationTagValueNode) {
                 continue;
             }
 
