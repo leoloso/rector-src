@@ -9,11 +9,13 @@ use Clue\React\NDJson\Encoder;
 use React\EventLoop\StreamSelectLoop;
 use React\Socket\ConnectionInterface;
 use React\Socket\TcpConnector;
+use Rector\Core\Util\MemoryLimiter;
 use Rector\Parallel\WorkerRunner;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symplify\EasyParallel\Enum\Action;
 use Symplify\EasyParallel\Enum\ReactCommand;
+use Symplify\PackageBuilder\Console\Command\CommandNaming;
 
 /**
  * Inspired at: https://github.com/phpstan/phpstan-src/commit/9124c66dcc55a222e21b1717ba5f60771f7dda92
@@ -26,12 +28,14 @@ final class WorkerCommand extends AbstractProcessCommand
 {
     public function __construct(
         private readonly WorkerRunner $workerRunner,
+        private readonly MemoryLimiter $memoryLimiter,
     ) {
         parent::__construct();
     }
 
     protected function configure(): void
     {
+        $this->setName(CommandNaming::classToName(self::class));
         $this->setDescription('(Internal) Support for parallel process');
         parent::configure();
     }
@@ -39,6 +43,7 @@ final class WorkerCommand extends AbstractProcessCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $configuration = $this->configurationFactory->createFromInput($input);
+        $this->memoryLimiter->adjust($configuration);
 
         $streamSelectLoop = new StreamSelectLoop();
         $parallelIdentifier = $configuration->getParallelIdentifier();
